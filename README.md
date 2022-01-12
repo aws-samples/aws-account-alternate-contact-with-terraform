@@ -19,11 +19,13 @@ The following prerequisites are required to deploy the solution:
 
 2. Make sure that your Terraform environment is able to assume an administrative role to implement the resources described in this blog across your management and delegated administrator accounts.
 
-3. Opt in to use the [AWS Account Management](https://docs.aws.amazon.com/accounts/latest/reference/accounts-welcome.html) service for your organization so you can centrally manage alternate contacts. You can do this by using the [AWS Command Line Interface](https://aws.amazon.com/cli/) or [AWS CloudShell](https://aws.amazon.com/cloudshell/) from the management account.
-  `aws organizations enable-aws-service-access --service-principal account.amazonaws.com`
+3. Opt in to use the [AWS Account Management](https://docs.aws.amazon.com/accounts/latest/reference/accounts-welcome.html) service for your organization so you can centrally manage alternate contacts. You can do this by using the [AWS Command Line Interface](https://aws.amazon.com/cli/) or [AWS CloudShell](https://aws.amazon.com/cloudshell/) from the management account:
 
-4. Register a delegated administrator so users don’t need access to the management account to manage alternate contacts. Make sure that you replace `<YOUR-CHOSEN-ACCOUNT-ID>` with the account id of your delegated administrator.
-`aws organizations register-delegated-administrator --account-id <YOUR-CHOSEN-ACCOUNT-ID> --service-principal account.amazonaws.com`
+   `aws organizations enable-aws-service-access --service-principal account.amazonaws.com`
+
+4. Register a delegated administrator so users don’t need access to the management account to manage alternate contacts. Make sure that you replace `<YOUR-CHOSEN-ACCOUNT-ID>` with the account id of your delegated administrator:
+
+   `aws organizations register-delegated-administrator --account-id <YOUR-CHOSEN-ACCOUNT-ID> --service-principal account.amazonaws.com`
 
 You only need to perform steps 3 and 4 once all through the lifecycle of your AWS account. You can use the AWS CLI or a [Terraform resource](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/organizations_organization).
 
