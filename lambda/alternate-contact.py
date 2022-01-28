@@ -1,58 +1,52 @@
 import os
-import sys
-from pip._internal import main
+import re
 
-# install latest version of boto3
-main(
-    [
-        "install",
-        "-I",
-        "-q",
-        "boto3",
-        "--target",
-        "/tmp/",
-        "--no-cache-dir",
-        "--disable-pip-version-check",
-    ]
-)
-sys.path.insert(0, "/tmp/")
 import boto3
-
 from botocore.exceptions import ClientError
 
-altcontacttype = os.environ.get("ALT_CONTACT_TYPE")
-emailaddress = os.environ.get("EMAIL_ADDRESS")
-contactname = os.environ.get("CONTACT_NAME")
-phonenumber = os.environ.get("PHONE_NUMBER")
-title = os.environ.get("CONTACT_TITLE")
+ORG_CLIENT = boto3.client("organizations")
+ACCOUNT_CLIENT = boto3.client("account")
 
-orgClient = boto3.client("organizations")
-client = boto3.client("account")
+SEC_ALTERNATE_CONTACTS = os.environ.get("security_alternate_contact")
+BILL_ALTERNATE_CONTACTS = os.environ.get("operations_alternate_contact")
+OPS_ALTERNATE_CONTACTS = os.environ.get("billing_alternate_contact")
+MANAGEMENT_ACCOUNT_ID = os.environ.get("management_account_id")
 
-listedAccounts = orgClient.list_accounts()
-failedAccounts = []
+LISTED_ACCOUNTS = ORG_CLIENT.list_accounts()
+FAILED_ACCOUNTS = []
+CONTACTS = []
+
+
+def parse_contact_types():
+    CONTACT_LIST = []
+    for contact in [SEC_ALTERNATE_CONTACTS, BILL_ALTERNATE_CONTACTS, OPS_ALTERNATE_CONTACTS]:
+        CONTACT_LIST = re.split("=|; ", contact)
+        list_to_dict = {CONTACT_LIST[i]: CONTACT_LIST[i + 1] for i in range(0, len(CONTACT_LIST), 2)}
+        CONTACTS.append(list_to_dict)
 
 
 def put_alternate_contact(accountId):
-    try:
-        response = client.put_alternate_contact(
-            AccountId=accountId,
-            AlternateContactType=altcontacttype,
-            EmailAddress=emailaddress,
-            Name=contactname,
-            PhoneNumber=phonenumber,
-            Title=title,
-        )
-        print(accountId)
+    for contact in CONTACTS:
+        try:
+            response = ACCOUNT_CLIENT.put_alternate_contact(
+                AccountId=accountId,
+                AlternateContactType=contact["CONTACT_TYPE"],
+                EmailAddress=contact["EMAIL_ADDRESS"],
+                Name=contact["CONTACT_NAME"],
+                PhoneNumber=contact["PHONE_NUMBER"],
+                Title=contact["CONTACT_TITLE"],
+            )
 
-    except ClientError as error:
-        failedAccounts.append(accountId)
-        print(error)
-        pass
+        except ClientError as error:
+            FAILED_ACCOUNTS.append(accountId)
+            print(error)
+            pass
 
 
 def lambda_handler(event, context):
-    for account in listedAccounts["Accounts"]:
-        if account["Status"] != "SUSPENDED":
+    parse_contact_types()
+    for account in LISTED_ACCOUNTS["Accounts"]:
+        if account["Status"] != "SUSPENDED" and account["Id"] != MANAGEMENT_ACCOUNT_ID:
             put_alternate_contact(account["Id"])
-    return ("Completed! Failed Accounts: ", failedAccounts)
+
+    return ("Completed! Failed Accounts: ", FAILED_ACCOUNTS)

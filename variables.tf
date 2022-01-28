@@ -8,9 +8,22 @@ variable "management_account_id" {
   description = "The account ID of the AWS Organizations Management account"
 }
 
-variable "alternate_contact_type" {
-  type        = map(string)
-  description = "A map of string that highlights the alternate contact details. Valid values for ALT_CONTACT_TYPE are: SECURITY, BILLING, OPERATIONS"
+variable "security_alternate_contact" {
+  type        = string
+  description = "The security alternate contact details. Example: CONTACT_TYPE=SECURITY; EMAIL_ADDRESS=john@example.com; CONTACT_NAME=John Bob; PHONE_NUMBER=1234567890; CONTACT_TITLE=Risk Manager"
+  default     = ""
+}
+
+variable "billing_alternate_contact" {
+  type        = string
+  description = "The billing alternate contact details. Example: CONTACT_TYPE=BILLING; EMAIL_ADDRESS=alice@example.com; CONTACT_NAME=Alice Doe; PHONE_NUMBER=1234567890; CONTACT_TITLE=Finance Manager"
+  default     = ""
+}
+
+variable "operations_alternate_contact" {
+  type        = string
+  description = "The operations alternate contact details. Example: CONTACT_TYPE=OPERATIONS; EMAIL_ADDRESS=bob@example.com; CONTACT_NAME=Bob Smith; PHONE_NUMBER=1234567890; CONTACT_TITLE=Operations Manager"
+  default     = ""
 }
 
 variable "invoke_lambda" {

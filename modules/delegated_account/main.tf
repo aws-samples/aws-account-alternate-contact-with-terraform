@@ -26,12 +26,12 @@ resource "aws_lambda_function" "alternate_contact_lambda" {
   runtime                        = "python3.9"
 
   tags = var.tags
-
-  dynamic "environment" {
-    for_each = length(keys(var.alternate_contact_type)) == 0 ? [] : [var.alternate_contact_type]
-
-    content {
-      variables = var.alternate_contact_type
+  environment {
+    variables = {
+      security_alternate_contact = var.security_alternate_contact
+      billing_alternate_contact = var.billing_alternate_contact
+      operations_alternate_contact = var.operations_alternate_contact
+      management_account_id = var.management_account_id
     }
   }
 }

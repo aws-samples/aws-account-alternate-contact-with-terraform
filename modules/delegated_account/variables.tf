@@ -3,10 +3,22 @@ variable "management_account_id" {
   description = "The account ID of the AWS Organizations Management account"
 }
 
-variable "alternate_contact_type" {
-  type        = map(string)
-  description = "The alternate contact details. Valid values for ALT_CONTACT_TYPE are: SECURITY, BILLING, OPERATIONS"
-  default     = {}
+variable "security_alternate_contact" {
+  type = string
+  description = "The security alternate contact details."
+  default     = ""
+}
+
+variable "billing_alternate_contact" {
+  type = string
+  description = "The alternate contact details."
+  default     = ""
+}
+
+variable "operations_alternate_contact" {
+  type = string
+  description = "The alternate contact details."
+  default     = ""
 }
 
 variable "alternate_contact_role" {

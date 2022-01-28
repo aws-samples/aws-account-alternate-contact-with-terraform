@@ -79,41 +79,40 @@ The implementation process of the solution is follows:
 
 ## Usage
 
-_To implement a security contact using this module, use the example  below._
+To implement multiple contacts using this module, modify the `main.tf` file in the root directory.
+_Example usage below._
 
 ```hcl
 module "delegated_admin_account" {
-  source = "git::ssh://git@example.org/example/terraform-aws-alternate-contact-module.git//modules/delegated_account"
+  source = "./modules/delegated_account"
   providers = {
     aws = aws.delegated_account
   }
 
   management_account_id = 123456789012
-  invoke_lambda = true
-  alternate_contact_env = {
-    ALT_CONTACT_TYPE = "SECURITY"
-    EMAIL_ADDRESS    = "alice@example.com"
-    CONTACT_NAME     = "Alice Bob"
-    PHONE_NUMBER     = "1234567890"
-    CONTACT_TITLE    = "IT Operations Manager"
+  security_alternate_contact = CONTACT_TYPE=SECURITY; EMAIL_ADDRESS=john@example.com; CONTACT_NAME=John Bob; PHONE_NUMBER=1234567890; CONTACT_TITLE=Risk Manager
+  billing_alternate_contact = CONTACT_TYPE=BILLING; EMAIL_ADDRESS=alice@example.com; CONTACT_NAME=Alice Doe; PHONE_NUMBER=1234567890; CONTACT_TITLE=Finance Manager
+  operations_alternate_contact = CONTACT_TYPE=OPERATIONS; EMAIL_ADDRESS=bob@example.com; CONTACT_NAME=Bob Smith; PHONE_NUMBER=1234567890; CONTACT_TITLE=Operations Manager
+  
+  invoke_lambda        = var.invoke_lambda
+  tags                 = {
+     Project     = "AWS-Alternate-Contact"
+     Environment = "Dev"
   }
-  tags = {
-  Project     = "AWS-Alternate-Contact"
-  Environment = "Dev"
-}
 }
 
+
 module "management_account" {
-  source = "git::ssh://git@example.org/example/terraform-aws-alternate-contact-module.git//modules/management_account"
+  source = "./modules/management_account"
   providers = {
     aws = aws.mgmt_account
   }
 
   delegated_account_event_bus = module.delegated_admin_account.delegated_account_bus
   tags = {
-  Project     = "AWS-Alternate-Contact"
-  Environment = "Dev"
-}
+    Project     = "AWS-Alternate-Contact"
+    Environment = "Dev"
+  }
 }
 ```
 
@@ -133,7 +132,7 @@ All variable details can be found in the [variables.tf](./variables.tf) file.
 | -------------               | -----------                                                                      | --------     | -----                         |--------  |
 | `region`                    | The home Region of the AWS Organizations management account                      | `string`     |                               | Yes      |
 | `management_account_id`     | The account ID of the AWS Organizations Management account.                      | `string`     |                               | Yes      |
-| `alternate_contact_type`    | The alternate contact details. Valid values are: SECURITY, BILLING, OPERATIONS   | `map(string)`| {}                            | Yes      |
+| `alternate_contacts`    | The alternate contact details. Valid values for contact types are: SECURITY, BILLING, OPERATIONS.   | `list(map(string))`| {}                            | Yes      |
 | `invoke_lambda`             | Controls if Lambda function should be invoked                                    | `bool`       | true                          | No       |
 | `tags`                      | A map of tags to assign to the resource                                          | `map(string)`|                               | No       |
 
