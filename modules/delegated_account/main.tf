@@ -18,12 +18,13 @@ resource "aws_lambda_function" "alternate_contact_lambda" {
   #checkov:skip=CKV_AWS_116
   #checkov:skip=CKV_AWS_117
   #checkov:skip=CKV_AWS_173
-  filename                       = "${path.root}/lambda/alternate-contact.zip"
+  filename                       = "${path.module}/lambda/alternate-contact.zip"
   function_name                  = var.lambda_function_name
   role                           = aws_iam_role.alternate_contact_role.arn
   reserved_concurrent_executions = var.reserved_concurrent_executions
   handler                        = "alternate-contact.lambda_handler"
   runtime                        = "python3.9"
+  timeout                        = "180"      # Experience show it takes about 21 seconds
 
   tags = var.tags
   environment {

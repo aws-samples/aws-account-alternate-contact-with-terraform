@@ -2,8 +2,8 @@ data "aws_organizations_organization" "account_info" {}
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  output_path = "${path.root}/lambda/alternate-contact.zip"
-  source_file = "${path.root}/lambda/alternate-contact.py"
+  output_path = "${path.module}/lambda/alternate-contact.zip"
+  source_file = "${path.module}/lambda/alternate-contact.py"
 }
 
 # AWS Account Management and Lambda Permissions
